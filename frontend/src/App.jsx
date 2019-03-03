@@ -62,6 +62,30 @@ const Balance = ({ balance }) => (
   </h2>
 );
 
+const PurchaseHistory = ({ purchaseHistory }) => (
+  <div className="purchase-history">
+    <h3>Purchase History</h3>
+    <table bordered={true} condensed={true} interactive={true} striped={true}>
+      <thead>
+        <tr>
+          <td>Purchase Date</td>
+          <td>Item</td>
+          <td>Price</td>
+        </tr>
+      </thead>
+      <tbody>
+        {purchaseHistory.map((item, i) => (
+          <tr key={i}>
+            <td>{item.date.toString()}</td>
+            <td>{item.purchaseName}</td>
+            <td>${item.purchaseAmount.toFixed(2)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 export default function App() {
   const [
     state,
@@ -78,54 +102,30 @@ export default function App() {
         <input
           placeholder="Purchase"
           value={state.purchaseName}
-          large={true}
           onChange={e => setPurchaseName(e.target.value)}
+          className="purchase-name"
         />
         <input
-          placeholder="Price"
-          value={state.purchaseAmount.toFixed(2)}
-          large={true}
-          fill={true}
-          leftIcon="dollar"
+          type="numeric"
+          value={state.purchaseAmount}
           min={0}
-          intent={state.purchaseAmount > state.balance ? "danger" : undefined}
-          onValueChange={value => setPurchaseAmount(value)}
+          className={
+            state.purchaseAmount > state.balance
+              ? "purchase-amount danger"
+              : "purchase-amount"
+          }
+          onChange={e => setPurchaseAmount(e.target.value)}
         />
         <button
           onClick={() =>
             addNewPurchase(state.purchaseName, state.purchaseAmount)
           }
-          large={true}
-          intent="primary"
-          text="Save"
-        />
-      </form>
-      <div className="purchase-history">
-        <h3>Purchase History</h3>
-        <table
-          bordered={true}
-          condensed={true}
-          interactive={true}
-          striped={true}
+          className="add-purchase-button"
         >
-          <thead>
-            <tr>
-              <td>Purchase Date</td>
-              <td>Item</td>
-              <td>Price</td>
-            </tr>
-          </thead>
-          <tbody>
-            {state.purchaseHistory.map((item, i) => (
-              <tr key={i}>
-                <td>{item.date.toString()}</td>
-                <td>{item.purchaseName}</td>
-                <td>${item.purchaseAmount.toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          Save
+        </button>
+      </form>
+      <PurchaseHistory purchaseHistory={state.purchaseHistory} />
     </div>
   );
 }
