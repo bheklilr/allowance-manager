@@ -41,8 +41,10 @@ const QUERIES = {
 const DATABASE_URL = process.env.DATABASE_URL;
 
 if (DATABASE_URL) {
+  console.log("Setting up the database: DATABASE_URL = ", DATABASE_URL);
   var client = new pg.Client();
   client.connect(DATABASE_URL);
+  console.log("Connected to the database, ensuring the tables are created.");
   client.query(QUERIES.createTables).then(function () {
     console.log("Database is set up");
   }).catch(function (reason) {
@@ -81,9 +83,14 @@ app.route("/api/history")
   })
   .post(function (req, res) {
     withDatabase(function (client) {
-      client.query(QUERIES.insertPurchase, [req.body.date, req.body.purchaseName, req.body.purchaseAmount]);
-      res.json({
-        status: 'ok'
+      client.query(QUERIES.insertPurchase, [req.body.date, req.body.purchaseName, req.body.purchaseAmount]).then(function () {
+        res.json({
+          status: 'ok'
+        })
+      }).catch(function () {
+        res.json({
+          status: 'failed'
+        })
       });
     }, function () {
       res.json({
