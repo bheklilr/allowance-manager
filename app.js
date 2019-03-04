@@ -30,6 +30,7 @@ const QUERIES = {
   createTables: "CREATE TABLE IF NOT EXISTS purchase_history (date text, name text, amount real);",
   getPurchases: "SELECT date, name, amount FROM purchase_history;",
   insertPurchase: "INSERT INTO purchase_history(date, name, amount) VALUES($1, $2, $3);",
+  clear: "TRUNCATE purchase_history;"
 }
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -67,6 +68,7 @@ app.route("/api/history")
   .get(function (req, res) {
     withDatabase(function (client) {
       client.query(QUERIES.getPurchases).then(function (queryResult) {
+        console.log("Found ", queryResult.rows.length, " purchases");
         res.json(queryResult.rows.map(function (row) {
           return {
             date: row.date,
@@ -76,28 +78,23 @@ app.route("/api/history")
         }));
       });
     }, function () {
-      res.json([{
-        date: new Date().toISOString(),
-        purchaseName: "A Book",
-        purchaseAmount: 20.00
-      }, {
-        date: new Date().toISOString(),
-        purchaseName: "A game",
-        purchaseAmount: 60.00
-      }]);
+      res.json([]);
     });
   })
   .post(function (req, res) {
     withDatabase(function (client) {
       let values = [req.body.date.toISOString(), req.body.purchaseName, req.body.purchaseAmount];
+      console.log("Inserting purchase for ", req.body);
       client.query(QUERIES.insertPurchase, values).then(function () {
+        console.log("Inserted successfully");
         res.json({
           status: 'ok'
         })
       }).catch(function (reason) {
+        console.log("Failed to insert:", reason);
         res.json({
           status: 'failed',
-          reason: reason.code,
+          reason: reason ? reason.code : "",
         })
       });
     }, function () {
@@ -106,5 +103,16 @@ app.route("/api/history")
       })
     })
   });
+
+api.route("/api/history/clear").get(function (req, res) {
+  console.log("Clearing the database");
+  withDatabase(function (client) {
+    client.query(QUERIES.clear).then(function (queryResult) {
+      res.json({});
+    }).catch(function (reason) {
+      res.json({});
+    })
+  })
+})
 
 module.exports = app;
