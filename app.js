@@ -27,15 +27,9 @@ app.use(function (err, req, res, next) {
 });
 
 const QUERIES = {
-  createTables: (
-    "CREATE TABLE IF NOT EXISTS purchase_history (" +
-    "   date text," +
-    "   name text," +
-    "   amount real" +
-    ")"
-  ),
-  getPurchases: "SELECT date, name as purchaseName, amount as purchaseAmount FROM purchase_history",
-  insertPurchase: "INSERT INTO purchase_history ($1, $2, $3)",
+  createTables: "CREATE TABLE IF NOT EXISTS purchase_history (date text, name text, amount real);",
+  getPurchases: "SELECT date, name as purchaseName, amount as purchaseAmount FROM purchase_history;",
+  insertPurchase: "INSERT INTO purchase_history(date, name, amount) VALUES($1, $2, $3);",
 }
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -43,20 +37,26 @@ const DATABASE_URL = process.env.DATABASE_URL;
 if (DATABASE_URL) {
   console.log("Setting up the database: DATABASE_URL = ", DATABASE_URL);
   var client = new pg.Client(DATABASE_URL);
-  client.connect();
-  console.log("Connected to the database, ensuring the tables are created.");
-  client.query(QUERIES.createTables).then(function () {
-    console.log("Database is set up");
+  client.connect().then(function () {
+    console.log("Connected to the database, ensuring the tables are created.");
+    client.query(QUERIES.createTables).then(function () {
+      console.log("Database is set up");
+    }).catch(function (reason) {
+      console.error("Failed to set up database: ", reason);
+      process.exit(-2);
+    });
   }).catch(function (reason) {
-    console.error("Failed to set up database: ", reason);
+    console.log("Failed to connect to database: ", reason);
+    process.exit(-1);
   });
 }
 
 function withDatabase(action, onError) {
   if (DATABASE_URL) {
     var client = new pg.Client(DATABASE_URL);
-    client.connect();
-    action(client);
+    client.connect().then(function () {
+      action(client)
+    }).catch(onError);
   } else {
     onError();
   }
@@ -87,9 +87,10 @@ app.route("/api/history")
         res.json({
           status: 'ok'
         })
-      }).catch(function () {
+      }).catch(function (reason) {
         res.json({
-          status: 'failed'
+          status: 'failed',
+          reason: reason.code,
         })
       });
     }, function () {
