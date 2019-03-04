@@ -3,36 +3,30 @@ import { differenceInMonths, startOfMonth } from "date-fns";
 
 import "./App.css";
 
-function usePurchaseHistory(setPurchaseHistory) {
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      fetch("/api/history").then(response => {
-        response.json().then(history => {
-          setPurchaseHistory(
-            history.map(purchase => ({
-              ...purchase,
-              date: new Date(purchase.date)
-            }))
-          );
-        });
-      });
-    }, 1000);
-    return () => {
-      window.clearInterval(timer);
-    };
+const getPurchases = async () => {
+  let response = await fetch("/api/history");
+  let history = await response.json();
+  return history.map(purchase => ({
+    ...purchase,
+    date: new Date(purchase.date)
+  }));
+};
+
+const postPurchase = async purchase => {
+  await fetch("/api/history", {
+    method: "POST",
+    cache: "no-cache",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(purchase)
   });
-  const postPurchase = purchase => {
-    fetch("/api/history", {
-      method: "POST",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(purchase)
-    });
-  };
-  return [postPurchase];
-}
+};
+
+const updatePurchaseHistory = async setPurchaseHistory => {
+  let newHistory = await getPurchases();
+  setPurchaseHistory(newHistory);
+};
 
 function usePurchases() {
   const startDate = startOfMonth(new Date(2019, 1, 28));
@@ -41,20 +35,19 @@ function usePurchases() {
   const startBalance = 125 * monthStartsSinceStartDate;
 
   const [state, setState] = useState({
-    startDate,
     startBalance,
     purchaseName: "",
     purchaseAmount: 0.0,
     purchaseHistory: []
   });
 
+  useEffect(() => {
+    updatePurchaseHistory(setPurchaseHistory);
+  }, []);
+
   const setPurchaseHistory = purchaseHistory =>
     setState({ ...state, purchaseHistory });
-
-  const [postPurchase] = usePurchaseHistory(setPurchaseHistory);
-
   const setPurchaseName = purchaseName => setState({ ...state, purchaseName });
-
   const setPurchaseAmount = purchaseAmount => {
     const value = Number.parseFloat(purchaseAmount);
     if (Number.isNaN(value)) {
@@ -63,6 +56,7 @@ function usePurchases() {
       setState({ ...state, purchaseAmount: value });
     }
   };
+
   const addNewPurchase = () => {
     if (state.purchaseName !== "" && state.purchaseAmount > 0) {
       const newPurchase = {
@@ -74,8 +68,8 @@ function usePurchases() {
       setState({
         purchaseName: "",
         purchaseAmount: 0,
-        purchaseHistory: state.purchaseHistory
       });
+      updatePurchaseHistory(setPurchaseHistory);
     }
   };
   return [state, setPurchaseName, setPurchaseAmount, addNewPurchase];
@@ -139,7 +133,7 @@ export default function App() {
   return (
     <div className="app">
       <Balance balance={balance} />
-      <form>
+      <div className="form">
         <h3>Add a purchase</h3>
         <label>
           <span>Item Name</span>
@@ -164,14 +158,12 @@ export default function App() {
           />
         </label>
         <button
-          onClick={() =>
-            addNewPurchase(state.purchaseName, state.purchaseAmount)
-          }
+          onClick={addNewPurchase}
           className="add-purchase-button"
         >
           Add
         </button>
-      </form>
+      </div>
       <PurchaseHistory purchaseHistory={state.purchaseHistory} />
     </div>
   );

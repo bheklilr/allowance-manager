@@ -38,7 +38,7 @@ table tbody tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 table tbody tr:hover {
-  background-color: #ddd;
+  background-color: #F8F8F8;
 }
 table th {
   padding-top: 12px;
@@ -46,20 +46,31 @@ table th {
   text-align: left;
   background-color: rgb(22, 112, 153);
   color: rgb(241, 241, 247);
+  text-transform: uppercase;
 }
 
 /* Form styling */
 
-form {
+.form {
   margin-top: 20px;
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
 }
 
-form>* {
+.form>* {
   margin-top: 8px;
   margin-bottom: 4px;
+}
+
+button {
+  font-weight: bold;
+  cursor: pointer;
+  background-color: rgb(22, 112, 153);
+  color: rgb(241, 241, 247);
+}
+button:active {
+  background-color: rgb(29, 128, 173);
 }
 
 input,
@@ -89,11 +100,6 @@ label>span {
 label>input {
   justify-self: flex-end;
   width: 80%;
-}
-
-.add-purchase-button {
-  background-color: rgb(22, 112, 153);
-  color: rgb(241, 241, 247);
 }
 
 .danger {
