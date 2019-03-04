@@ -26,21 +26,24 @@ app.use(function (err, req, res, next) {
   res.send(err.message);
 });
 
-const CREATE_STATEMENT = (
-  "CREATE TABLE IF NOT EXISTS purchase_history (" +
-  "   date text," +
-  "   name text," +
-  "   amount real" +
-  ")"
-);
-const HISTORY_QUERY = "SELECT date, name as purchaseName, amount as purchaseAmount FROM purchase_history";
+const QUERIES = {
+  createTables: (
+    "CREATE TABLE IF NOT EXISTS purchase_history (" +
+    "   date text," +
+    "   name text," +
+    "   amount real" +
+    ")"
+  ),
+  getPurchases: "SELECT date, name as purchaseName, amount as purchaseAmount FROM purchase_history",
+  insertPurchase: "INSERT INTO purchase_history ($1, $2, $3)",
+}
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
 if (DATABASE_URL) {
   var client = new pg.Client();
   client.connect(DATABASE_URL).then(function () {
-    client.query(CREATE_STATEMENT).then(function () {
+    client.query(QUERIES.createTables).then(function () {
       console.log("Database is set up");
     }).catch(function (reason) {
       console.error("Failed to set up database: ", reason);
@@ -48,26 +51,47 @@ if (DATABASE_URL) {
   });
 }
 
+function withDatabase(action, onError) {
+  if (DATABASE_URL) {
+    var client = new pg.Client();
+    client.connect(DATABASE_URL).then(function () {
+      action(client);
+    });
+  } else {
+    onError();
+  }
+}
+
 // Routes
 app.route("/api/history")
   .get(function (req, res) {
-    if (!DATABASE_URL) {
+    withDatabase(function (client) {
+      client.query(QUERIES.getPurchases).then(function (queryResult) {
+        res.json(queryResult.rows);
+      });
+    }, function () {
       res.json([{
         date: new Date().toISOString(),
         purchaseName: "A Book",
         purchaseAmount: 20.00
+      }, {
+        date: new Date().toISOString(),
+        purchaseName: "A game",
+        purchaseAmount: 60.00
       }]);
-      return;
-    }
-    var client = new pg.Client();
-    client.connect(DATABASE_URL)
-      .then(function () {
-        client.query(HISTORY_QUERY).then(function (queryResult) {
-          res.json(queryResult.rows);
-        }).then(function () {
-          client.end();
-        })
+    });
+  })
+  .post(function (req, res) {
+    withDatabase(function (client) {
+      client.query(QUERIES.insertPurchase, [req.body.date, req.body.purchaseName, req.body.purchaseAmount]);
+      res.json({
+        status: 'ok'
       });
+    }, function () {
+      res.json({
+        status: 'ok'
+      })
+    })
   });
 
 module.exports = app;

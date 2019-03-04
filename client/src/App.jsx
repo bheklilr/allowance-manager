@@ -19,7 +19,7 @@ const postPurchase = async purchase => {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(purchase)
+    body: JSON.stringify({ ...purchase, date: purchase.date.toISOString() })
   });
 };
 
@@ -45,8 +45,7 @@ function usePurchases() {
     updatePurchases(setPurchases);
   }, []);
 
-  const setPurchases = purchases =>
-    setState({ ...state, purchases });
+  const setPurchases = purchases => setState({ ...state, purchases });
   const setPurchaseName = purchaseName => setState({ ...state, purchaseName });
   const setPurchaseAmount = purchaseAmount => {
     const value = Number.parseFloat(purchaseAmount);
@@ -68,7 +67,7 @@ function usePurchases() {
       setState({
         ...state,
         purchaseName: "",
-        purchaseAmount: 0,
+        purchaseAmount: 0
       });
       updatePurchases(setPurchases);
     }
@@ -128,7 +127,6 @@ export default function App() {
     setPurchaseAmount,
     addNewPurchase
   ] = usePurchases();
-
   const balance = getBalance(state);
 
   return (
@@ -158,10 +156,7 @@ export default function App() {
             onChange={e => setPurchaseAmount(e.target.value)}
           />
         </label>
-        <button
-          onClick={addNewPurchase}
-          className="add-purchase-button"
-        >
+        <button onClick={addNewPurchase} className="add-purchase-button">
           Add
         </button>
       </div>
