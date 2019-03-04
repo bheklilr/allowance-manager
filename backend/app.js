@@ -18,7 +18,7 @@ app.use(static(join(__dirname, 'public')));
 app.use('/', indexRouter);
 
 const client = new Client();
-await client.connect();
+await client.connect(process.env.DATABASE);
 
 app.use('/api', apiRouter(client));
 
