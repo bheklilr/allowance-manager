@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "heroku-prebuild": "yarn install",
     "heroku-postbuild": "cd client && yarn install && yarn run build"
   },
   "dependencies": {
@@ -15,5 +14,9 @@
     "jade": "~1.11.0",
     "morgan": "~1.9.0",
     "pg": "^7.8.1"
+  },
+  "engines": {
+    "node": "10.3.0",
+    "yarn": "1.13"
   }
 }
