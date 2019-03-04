@@ -37,7 +37,7 @@ function usePurchases() {
   const [state, setState] = useState({
     startBalance,
     purchaseName: "",
-    purchaseAmount: 0.0,
+    purchaseAmount: "0.00",
     purchases: []
   });
 
@@ -48,26 +48,25 @@ function usePurchases() {
   const setPurchases = purchases => setState({ ...state, purchases });
   const setPurchaseName = purchaseName => setState({ ...state, purchaseName });
   const setPurchaseAmount = purchaseAmount => {
-    const value = Number.parseFloat(purchaseAmount);
-    if (Number.isNaN(value)) {
-      setState({ ...state, purchaseAmount });
-    } else {
-      setState({ ...state, purchaseAmount: value });
-    }
+    setState({ ...state, purchaseAmount });
   };
 
   const addNewPurchase = () => {
-    if (state.purchaseName !== "" && state.purchaseAmount > 0) {
+    let purchaseAmount = Number.parseFloat(state.purchaseAmount);
+    if (Number.isNaN(purchaseAmount)) {
+      purchaseAmount = 0;
+    }
+    if (state.purchaseName !== "" && purchaseAmount > 0) {
       const newPurchase = {
         date: new Date(),
         purchaseName: state.purchaseName,
-        purchaseAmount: state.purchaseAmount
+        purchaseAmount: purchaseAmount
       };
       postPurchase(newPurchase);
       setState({
         ...state,
         purchaseName: "",
-        purchaseAmount: 0
+        purchaseAmount: "0.00"
       });
       updatePurchases(setPurchases);
     }

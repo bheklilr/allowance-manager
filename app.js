@@ -28,7 +28,7 @@ app.use(function (err, req, res, next) {
 
 const QUERIES = {
   createTables: "CREATE TABLE IF NOT EXISTS purchase_history (date text, name text, amount real);",
-  getPurchases: "SELECT date, name as purchaseName, amount as purchaseAmount FROM purchase_history;",
+  getPurchases: "SELECT date, name, amount FROM purchase_history;",
   insertPurchase: "INSERT INTO purchase_history(date, name, amount) VALUES($1, $2, $3);",
 }
 
@@ -67,7 +67,13 @@ app.route("/api/history")
   .get(function (req, res) {
     withDatabase(function (client) {
       client.query(QUERIES.getPurchases).then(function (queryResult) {
-        res.json(queryResult.rows);
+        res.json(queryResult.rows.map(function (row) {
+          return {
+            date: row.date,
+            purchaseName: row.name,
+            purchaseAmount: row.amount
+          };
+        }));
       });
     }, function () {
       res.json([{
@@ -83,7 +89,8 @@ app.route("/api/history")
   })
   .post(function (req, res) {
     withDatabase(function (client) {
-      client.query(QUERIES.insertPurchase, [req.body.date, req.body.purchaseName, req.body.purchaseAmount]).then(function () {
+      let values = [req.body.date.toISOString(), req.body.purchaseName, req.body.purchaseAmount];
+      client.query(QUERIES.insertPurchase, values).then(function () {
         res.json({
           status: 'ok'
         })
