@@ -23,9 +23,9 @@ const postPurchase = async purchase => {
   });
 };
 
-const updatePurchaseHistory = async setPurchaseHistory => {
-  let newHistory = await getPurchases();
-  setPurchaseHistory(newHistory);
+const updatePurchases = async setPurchases => {
+  let purchases = await getPurchases();
+  setPurchases(purchases);
 };
 
 function usePurchases() {
@@ -38,15 +38,15 @@ function usePurchases() {
     startBalance,
     purchaseName: "",
     purchaseAmount: 0.0,
-    purchaseHistory: []
+    purchases: []
   });
 
   useEffect(() => {
-    updatePurchaseHistory(setPurchaseHistory);
+    updatePurchases(setPurchases);
   }, []);
 
-  const setPurchaseHistory = purchaseHistory =>
-    setState({ ...state, purchaseHistory });
+  const setPurchases = purchases =>
+    setState({ ...state, purchases });
   const setPurchaseName = purchaseName => setState({ ...state, purchaseName });
   const setPurchaseAmount = purchaseAmount => {
     const value = Number.parseFloat(purchaseAmount);
@@ -66,10 +66,11 @@ function usePurchases() {
       };
       postPurchase(newPurchase);
       setState({
+        ...state,
         purchaseName: "",
         purchaseAmount: 0,
       });
-      updatePurchaseHistory(setPurchaseHistory);
+      updatePurchases(setPurchases);
     }
   };
   return [state, setPurchaseName, setPurchaseAmount, addNewPurchase];
@@ -84,10 +85,10 @@ const Balance = ({ balance }) => (
   </h2>
 );
 
-const PurchaseHistory = ({ purchaseHistory }) => (
+const Purchases = ({ purchases }) => (
   <div className="purchase-history">
     <h3>Purchase History</h3>
-    {purchaseHistory.length === 0 ? (
+    {purchases.length === 0 ? (
       <span className="no-history">You haven't purchased anything yet</span>
     ) : (
       <table>
@@ -99,7 +100,7 @@ const PurchaseHistory = ({ purchaseHistory }) => (
           </tr>
         </thead>
         <tbody>
-          {purchaseHistory.map((item, i) => (
+          {purchases.map((item, i) => (
             <tr key={i}>
               <td>{item.date.toISOString()}</td>
               <td>{item.purchaseName}</td>
@@ -114,7 +115,7 @@ const PurchaseHistory = ({ purchaseHistory }) => (
 
 function getBalance(state) {
   let balance = state.startBalance;
-  for (let purchase of state.purchaseHistory) {
+  for (let purchase of state.purchases) {
     balance -= purchase.purchaseAmount;
   }
   return balance;
@@ -164,7 +165,7 @@ export default function App() {
           Add
         </button>
       </div>
-      <PurchaseHistory purchaseHistory={state.purchaseHistory} />
+      <Purchases purchases={state.purchases} />
     </div>
   );
 }
