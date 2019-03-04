@@ -104,7 +104,7 @@ app.route("/api/history")
     })
   });
 
-api.route("/api/history/clear").get(function (req, res) {
+app.route("/api/history/clear").get(function (req, res) {
   console.log("Clearing the database");
   withDatabase(function (client) {
     client.query(QUERIES.clear).then(function (queryResult) {
