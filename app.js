@@ -83,7 +83,7 @@ app.route("/api/history")
     })
     .post(function (req, res) {
         withDatabase(function (client) {
-            let values = [req.body.date.toISOString(), req.body.purchaseName, req.body.purchaseAmount];
+            let values = [req.body.date, req.body.purchaseName, req.body.purchaseAmount];
             console.log("Inserting purchase for ", req.body);
             client.query(QUERIES.insertPurchase, values).then(function () {
                 console.log("Inserted successfully");
