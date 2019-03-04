@@ -42,21 +42,19 @@ const DATABASE_URL = process.env.DATABASE_URL;
 
 if (DATABASE_URL) {
   var client = new pg.Client();
-  client.connect(DATABASE_URL).then(function () {
-    client.query(QUERIES.createTables).then(function () {
-      console.log("Database is set up");
-    }).catch(function (reason) {
-      console.error("Failed to set up database: ", reason);
-    });
+  client.connect(DATABASE_URL);
+  client.query(QUERIES.createTables).then(function () {
+    console.log("Database is set up");
+  }).catch(function (reason) {
+    console.error("Failed to set up database: ", reason);
   });
 }
 
 function withDatabase(action, onError) {
   if (DATABASE_URL) {
     var client = new pg.Client();
-    client.connect(DATABASE_URL).then(function () {
-      action(client);
-    });
+    client.connect(DATABASE_URL);
+    action(client);
   } else {
     onError();
   }
