@@ -42,8 +42,8 @@ const DATABASE_URL = process.env.DATABASE_URL;
 
 if (DATABASE_URL) {
   console.log("Setting up the database: DATABASE_URL = ", DATABASE_URL);
-  var client = new pg.Client();
-  client.connect(DATABASE_URL);
+  var client = new pg.Client(DATABASE_URL);
+  client.connect();
   console.log("Connected to the database, ensuring the tables are created.");
   client.query(QUERIES.createTables).then(function () {
     console.log("Database is set up");
@@ -54,8 +54,8 @@ if (DATABASE_URL) {
 
 function withDatabase(action, onError) {
   if (DATABASE_URL) {
-    var client = new pg.Client();
-    client.connect(DATABASE_URL);
+    var client = new pg.Client(DATABASE_URL);
+    client.connect();
     action(client);
   } else {
     onError();
