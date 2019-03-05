@@ -1,6 +1,5 @@
 .app {
   margin: 20px;
-  width: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -84,6 +83,7 @@ button {
 }
 
 input {
+  margin-left: 32px;
   border: 1px solid rgba(139, 139, 143, 0.75);
 }
 
@@ -91,17 +91,66 @@ label {
   color: rgb(58, 58, 58);
   display: flex;
   flex-direction: row;
+  white-space: nowrap;
+  text-align: right;
+  align-items: baseline;
+
 }
 
 label>span {
   flex-grow: 1;
+  font-size: 13pt;
+  width: 20%;
+}
+label>span::after {
+  content: ":";
 }
 
 label>input {
   justify-self: flex-end;
-  width: 80%;
+  flex-grow: 2;
 }
 
 .danger {
   border-color: rgba(209, 47, 18, 1);
+}
+
+.card {
+  min-height: 50px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 1px 1px 4px -4px rgba(0,0,0,0.75);
+  padding: 8px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  display: grid;
+  align-content: space-between;
+  align-items: baseline;
+  transition: box-shadow 0.37s ease 0.1s;
+  grid-template-areas:  "title ."
+                        "price date";
+}
+
+.card:hover {
+  box-shadow: 2px 2px 4px -3px rgba(0,0,0,0.75);
+}
+
+.card .title {
+  font-size: 14pt;
+  font-weight: bold;
+  text-transform: capitalize;
+  grid-area: title;
+}
+
+.card .price {
+  grid-area: price;
+  padding-left: 8px;
+}
+
+.card .date {
+  grid-area: date;
+  text-align: right;
+  color: #666;
+  padding-right: 8px;
+  font-size: 10pt;
 }

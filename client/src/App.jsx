@@ -1,5 +1,11 @@
+/**
+ * @typedef {Object} Purchase
+ * @property {Date} date
+ * @property {string} purchaseName
+ * @property {number} purchaseAmount
+ */
 import React, { useReducer, useEffect } from "react";
-import { differenceInMonths, startOfMonth } from "date-fns";
+import { differenceInMonths, startOfMonth, format } from "date-fns";
 
 import "./App.css";
 
@@ -76,7 +82,7 @@ function usePurchases() {
       postPurchase(newPurchase);
       setPurchaseName("");
       setPurchaseAmount("0.00");
-      updatePurchases(setPurchases);
+      window.setTimeout(() => updatePurchases(setPurchases), 250);
     }
   };
   return [state, setPurchaseName, setPurchaseAmount, addNewPurchase];
@@ -91,30 +97,34 @@ const Balance = ({ balance }) => (
   </h2>
 );
 
-const Purchases = ({ purchases }) => (
+const Card = (props) => (
+  <div className="card">
+    {props.children}
+  </div>
+);
+
+/**
+ * 
+ * @typedef {Object} PurchasesProps
+ * @property {Purchase[]} purchases
+ */
+
+/**
+ * @param {PurchasesProps} props 
+ */
+const Purchases = (props) => (
   <div className="purchase-history">
     <h3>Purchase History</h3>
-    {purchases.length === 0 ? (
+    {props.purchases.length === 0 ? (
       <span className="no-history">You haven't purchased anything yet</span>
     ) : (
-      <table>
-        <thead>
-          <tr>
-            <th>Purchase Date</th>
-            <th>Item</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          {purchases.map((item, i) => (
-            <tr key={i}>
-              <td>{item.date.toISOString()}</td>
-              <td>{item.purchaseName}</td>
-              <td>${item.purchaseAmount.toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      props.purchases.map((item, i) => (
+        <Card key={i}>
+          <div className="title">{item.purchaseName}</div>
+          <span className="price">${item.purchaseAmount.toFixed(2)}</span>
+          <span className="date">{format(item.date, "YYYY-MM-DD")}</span>
+        </Card>
+      ))
     )}
   </div>
 );
