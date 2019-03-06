@@ -1,0 +1,7 @@
+.balance {
+  margin-left: 20px;
+}
+
+.negative.balance {
+  color: rgba(209, 47, 18, 1);
+}
