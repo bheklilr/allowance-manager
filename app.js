@@ -2,6 +2,10 @@ import express, { json, urlencoded } from 'express';
 import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
+import session from 'express-session';
+
+import passport from 'passport';
+import passportLocal from 'passport-local';
 
 import apiRoutes from './routes/api';
 import { initializeDB } from './db';
@@ -15,6 +19,31 @@ app.use(urlencoded({
 }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, 'client/build')));
+
+passport.use(new passportLocal.Strategy(
+    (username, password, done) => {
+        // TODO: lookup auth like this
+        /*
+        try {
+            const match = await findUser(username, password);
+            if (match.isValidUser) {
+                return done(null, match);
+            }
+        } catch (err) {
+            return done(null, false, { message: 'Invalid credentials' });
+        }
+        */
+       return done(null, {username});
+    }
+));
+
+if (!process.env.KEYBOARD_CAT) {
+    console.error("No keyboard cat");
+    process.exit(-3);
+}
+app.use(session({ secret: process.env.KEYBOARD_CAT }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // error handler
 app.use(function (err, req, res) {
