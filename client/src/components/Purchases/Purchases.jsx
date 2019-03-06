@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 
 import './Purchases.css';
 
-import Card from './Card';
+import Card from '../Card/Card';
 
 /**
  * @typedef {Object} Purchase

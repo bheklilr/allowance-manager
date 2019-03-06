@@ -2,8 +2,8 @@ import React from "react";
 
 import "./App.css";
 
-import Balance from './Balance';
-import Purchases from './purchases';
+import Balance from '../Balance/Balance';
+import Purchases from '../Purchases/Purchases';
 
 import { usePurchases } from './App.behavior';
 
