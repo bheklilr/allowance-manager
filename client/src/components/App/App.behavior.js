@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from 'react';
 import { differenceInMonths, startOfMonth } from 'date-fns';
-import { updatePurchases, postPurchase } from "../api/purchases";
+import { updatePurchases, postPurchase } from "../../api/purchases";
 
 function reducer(state, action) {
     switch (action.type) {
